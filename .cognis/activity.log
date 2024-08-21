@@ -2,3 +2,4 @@
 2024-07-06T15:57:27  chore(fixtures): add --fail-on threshold handling
 2024-07-21T10:14:34  perf(report): clarify the README quickstart
 2024-08-06T17:31:41  ci(docs): add a --format json alias
+2024-08-21T12:48:48  feat(cache): add color + severity icons
