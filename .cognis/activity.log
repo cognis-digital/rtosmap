@@ -3,3 +3,4 @@
 2024-07-21T10:14:34  perf(report): clarify the README quickstart
 2024-08-06T17:31:41  ci(docs): add a --format json alias
 2024-08-21T12:48:48  feat(cache): add color + severity icons
+2024-09-07T19:05:55  chore: bump dev tooling
