@@ -11,3 +11,4 @@
 2024-12-12T18:30:30  chore: routine maintenance
 2024-12-27T13:47:37  build(parser): improve the demo scenario
 2025-01-11T08:04:44  chore: ATHENA-PRIME calibration
+2025-01-28T15:21:51  chore(config): add a JSON schema for output
