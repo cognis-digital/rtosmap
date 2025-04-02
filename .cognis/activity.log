@@ -14,3 +14,4 @@
 2025-01-28T15:21:51  chore(config): add a JSON schema for output
 2025-03-02T10:38:58  refactor(scan): short-circuit on first critical
 2025-03-18T17:55:05  style(core): stream large files without buffering
+2025-04-02T12:12:12  feat(output): tune severity weights
