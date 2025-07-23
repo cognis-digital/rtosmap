@@ -20,3 +20,4 @@
 2025-05-19T09:03:33  ci(report): clarify the README quickstart
 2025-06-04T16:20:40  fix(docs): add a --format json alias
 2025-07-07T11:37:47  docs(cache): add color + severity icons
+2025-07-23T18:54:54  docs: clarify usage notes
