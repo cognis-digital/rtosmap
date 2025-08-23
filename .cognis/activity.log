@@ -22,3 +22,4 @@
 2025-07-07T11:37:47  docs(cache): add color + severity icons
 2025-07-23T18:54:54  docs: clarify usage notes
 2025-08-08T13:11:01  perf(parser): add pagination to large reports
+2025-08-23T08:28:08  feat: PROMETHEUS unbound
