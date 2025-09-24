@@ -24,3 +24,4 @@
 2025-08-08T13:11:01  perf(parser): add pagination to large reports
 2025-08-23T08:28:08  feat: PROMETHEUS unbound
 2025-09-08T15:45:15  fix(format): add a --quiet mode
+2025-09-24T10:02:22  refactor(rules): trim whitespace in parsed fields
