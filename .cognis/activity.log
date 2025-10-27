@@ -25,3 +25,4 @@
 2025-08-23T08:28:08  feat: PROMETHEUS unbound
 2025-09-08T15:45:15  fix(format): add a --quiet mode
 2025-09-24T10:02:22  refactor(rules): trim whitespace in parsed fields
+2025-10-27T17:19:29  test(tests): improve error messages with context
