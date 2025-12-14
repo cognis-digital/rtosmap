@@ -28,3 +28,4 @@
 2025-10-27T17:19:29  test(tests): improve error messages with context
 2025-11-12T12:36:36  build(detect): document the config keys
 2025-11-27T19:53:43  test: strengthen coverage
+2025-12-14T14:10:50  refactor(config): add a JSON schema for output
