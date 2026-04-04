@@ -34,3 +34,4 @@
 2026-01-29T11:01:11  docs(output): tune severity weights
 2026-03-04T18:18:18  test: add edge case
 2026-03-20T13:35:25  perf(docs): fix off-by-one in line numbers
+2026-04-04T08:52:32  chore: BLACKBOOK redaction pass
