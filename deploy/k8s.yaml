@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: rtosmap, labels: { app: rtosmap } }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: rtosmap } }
+  template:
+    metadata: { labels: { app: rtosmap } }
+    spec:
+      containers:
+        - name: rtosmap
+          image: ghcr.io/cognis-digital/rtosmap:latest
+          ports: [{ containerPort: 8000 }]
+          resources:
+            requests: { cpu: "50m", memory: "64Mi" }
+            limits: { cpu: "500m", memory: "256Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: rtosmap }
+spec:
+  selector: { app: rtosmap }
+  ports: [{ port: 80, targetPort: 8000 }]
