@@ -1,0 +1,10 @@
+{
+  "name": "@cognis/rtosmap",
+  "version": "0.2.0",
+  "description": "JavaScript port of rtosmap (Cognis Neural Suite)",
+  "bin": {
+    "rtosmap": "index.js"
+  },
+  "license": "LicenseRef-COCL-1.0",
+  "type": "module"
+}
