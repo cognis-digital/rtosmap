@@ -16,7 +16,7 @@
 </div>
 
 ```bash
-pip install cognis-rtosmap
+pip install "git+https://github.com/cognis-digital/rtosmap.git"
 rtosmap scan .            # → prioritized findings in seconds
 ```
 
@@ -48,7 +48,7 @@ Embedded devs love free static analysis they can drop in PRs — 'this task over
 ## Quick start
 
 ```bash
-pip install cognis-rtosmap
+pip install "git+https://github.com/cognis-digital/rtosmap.git"
 rtosmap --version
 rtosmap scan .                       # scan current project
 rtosmap scan . --format json         # machine-readable
