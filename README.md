@@ -20,6 +20,12 @@ pip install "git+https://github.com/cognis-digital/rtosmap.git"
 rtosmap scan .            # → prioritized findings in seconds
 ```
 
+<!-- cognis:layman:start -->
+## What is this?
+
+rtosmap is a command-line tool that reads stack usage data from embedded firmware running FreeRTOS or Zephyr — the small operating systems found in IoT devices, microcontrollers, and industrial equipment. It checks each task's memory usage against its allocated stack space and flags any that are dangerously close to overflowing or have already overflowed. Firmware developers use it to catch stack overflow bugs before they cause unpredictable crashes in the field, and it can run automatically in a CI pipeline to block risky code from being deployed.
+<!-- cognis:layman:end -->
+
 ## Contents
 
 - [Why rtosmap?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
@@ -45,6 +51,42 @@ Embedded devs love free static analysis they can drop in PRs — 'this task over
 <div align="right"><a href="#top">↑ back to top</a></div>
 
 <a name="quick-start"></a>
+<!-- cognis:install:start -->
+## Install
+
+`rtosmap` is source-available (not published to PyPI) — every method below installs
+straight from GitHub. Pick whichever you prefer; the one-line scripts auto-detect
+the best tool available on your machine.
+
+**One-liner (Linux / macOS):**
+```sh
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/rtosmap/HEAD/install.sh | sh
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/cognis-digital/rtosmap/HEAD/install.ps1 | iex
+```
+
+**Or install manually — any one of:**
+```sh
+pipx install "git+https://github.com/cognis-digital/rtosmap.git"     # isolated (recommended)
+uv tool install "git+https://github.com/cognis-digital/rtosmap.git"  # uv
+pip install "git+https://github.com/cognis-digital/rtosmap.git"      # pip
+```
+
+**From source:**
+```sh
+git clone https://github.com/cognis-digital/rtosmap.git
+cd rtosmap && pip install .
+```
+
+Then run:
+```sh
+rtosmap --help
+```
+<!-- cognis:install:end -->
+
 ## Quick start
 
 ```bash
