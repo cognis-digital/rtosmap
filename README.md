@@ -20,6 +20,34 @@ pip install cognis-rtosmap
 rtosmap scan .            # → prioritized findings in seconds
 ```
 
+## Usage — step by step
+
+1. **Install** (Python 3.9+):
+
+   ```bash
+   pip install rtosmap            # or: pipx install rtosmap
+   ```
+
+2. **Check a stack map.** Point `check` at your RTOS stack map file (or `-` for stdin) to report risky tasks:
+
+   ```bash
+   rtosmap check stackmap.txt
+   ```
+
+3. **Tune the thresholds.** Adjust the used-percentage at which a task is flagged WARNING (`--warn`, default 80) or CRITICAL (`--fail`, default 90):
+
+   ```bash
+   rtosmap check stackmap.txt --warn 70 --fail 85 --format json > stack.json
+   ```
+
+4. **Read the result.** The report ranks each task by stack used%, marking WARNING/CRITICAL tiers. In JSON mode, parse the per-task findings; the process exits non-zero on CRITICAL findings.
+
+5. **Gate in CI.** Use `--strict` to also fail on WARNING-level findings:
+
+   ```bash
+   rtosmap check stackmap.txt --strict
+   ```
+
 ## Contents
 
 - [Why rtosmap?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
