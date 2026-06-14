@@ -34,3 +34,6 @@ rtosmap = "rtosmap.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["rtosmap"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
