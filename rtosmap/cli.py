@@ -31,8 +31,11 @@ from .core import Severity, analyze_text
 def _read_input(path: str) -> str:
     if path == "-":
         return sys.stdin.read()
-    with open(path, "r", encoding="utf-8") as fh:
-        return fh.read()
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return fh.read()
+    except UnicodeDecodeError as e:
+        raise OSError(f"file is not valid UTF-8: {e}") from e
 
 
 def _render_table(report) -> str:
@@ -131,6 +134,20 @@ def main(argv: Optional[list[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "check":
+        warn_pct = args.warn / 100.0
+        fail_pct = args.fail / 100.0
+        if not (0.0 < args.warn <= 100.0) or not (0.0 < args.fail <= 100.0):
+            print(
+                f"{TOOL_NAME}: --warn and --fail must be in the range (0, 100]",
+                file=sys.stderr,
+            )
+            return 2
+        if fail_pct < warn_pct:
+            print(
+                f"{TOOL_NAME}: --fail ({args.fail}) must be >= --warn ({args.warn})",
+                file=sys.stderr,
+            )
+            return 2
         try:
             text = _read_input(args.mapfile)
         except OSError as e:
@@ -139,8 +156,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         try:
             report = analyze_text(
                 text,
-                warn_pct=args.warn / 100.0,
-                fail_pct=args.fail / 100.0,
+                warn_pct=warn_pct,
+                fail_pct=fail_pct,
             )
         except ValueError as e:
             print(f"{TOOL_NAME}: {e}", file=sys.stderr)

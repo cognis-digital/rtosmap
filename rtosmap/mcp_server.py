@@ -1,6 +1,10 @@
-"""RTOSMAP MCP server — exposes scan() as an MCP tool for Cognis.Studio."""
+"""RTOSMAP MCP server — exposes analyze_text() as an MCP tool for Cognis.Studio."""
 from __future__ import annotations
-from rtosmap.core import scan, to_json
+
+import json
+
+from rtosmap.core import analyze_text
+
 
 def serve() -> int:
     """Start an MCP stdio server. Requires the optional 'mcp' extra:
@@ -14,9 +18,18 @@ def serve() -> int:
     app = FastMCP("rtosmap")
 
     @app.tool()
-    def rtosmap_scan(target: str) -> str:
-        """Statically map task structures, stack usage, and ISR call graphs in FreeRTOS/Zephyr firmware to flag stack overflows and priority-inversion risks.. Returns JSON findings."""
-        return to_json(scan(target))
+    def rtosmap_scan(map_text: str) -> str:
+        """Analyze RTOS stack map text and return JSON findings.
+
+        map_text: stack map content (one task per line:
+        <name> <stack_size> <peak_used> [priority]).
+        Returns JSON findings with severity, overflow, and headroom data.
+        """
+        try:
+            report = analyze_text(map_text)
+            return json.dumps(report.to_dict())
+        except ValueError as exc:
+            return json.dumps({"error": str(exc)})
 
     app.run()
     return 0

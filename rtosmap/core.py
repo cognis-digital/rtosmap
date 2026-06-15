@@ -115,7 +115,9 @@ class Report:
         return {
             "worst": self.worst.name,
             "counts": self.counts(),
-            "total_stack_bytes": sum(t.stack_size for t in self.tasks if t.stack_size > 0),
+            "total_stack_bytes": sum(
+                t.stack_size for t in self.tasks if t.stack_size > 0
+            ),
             "findings": [f.to_dict() for f in self.findings],
         }
 

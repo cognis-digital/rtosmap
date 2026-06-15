@@ -158,3 +158,66 @@ def test_module_entrypoint_version():
     )
     assert out.returncode == 0
     assert TOOL_VERSION in out.stdout
+
+
+# ---------------------------------------------------------------------------
+# Hardening tests: error paths and edge cases
+# ---------------------------------------------------------------------------
+
+
+def test_cli_warn_greater_than_fail_exit_two(capsys):
+    """--warn > --fail should exit 2 with a clear message, not a raw traceback."""
+    rc = main(["check", DEMO, "--warn", "90", "--fail", "80"])
+    assert rc == 2
+    err = capsys.readouterr().err
+    assert "--fail" in err or "--warn" in err
+
+
+def test_cli_threshold_out_of_range_exit_two(capsys):
+    """--warn 0 is out of range (must be > 0); should exit 2 cleanly."""
+    rc = main(["check", DEMO, "--warn", "0", "--fail", "90"])
+    assert rc == 2
+    err = capsys.readouterr().err
+    assert "range" in err.lower() or "warn" in err.lower()
+
+
+def test_cli_binary_file_exit_two(tmp_path, capsys):
+    """A binary (non-UTF-8) file should exit 2 with a clear error, not a traceback."""
+    bad = tmp_path / "binary.map"
+    bad.write_bytes(b"\xff\xfe binary garbage \x00\x01\x02")
+    rc = main(["check", str(bad)])
+    assert rc == 2
+    err = capsys.readouterr().err
+    assert "cannot read" in err or "UTF-8" in err or "utf-8" in err
+
+
+def test_cli_empty_file_exit_zero(tmp_path, capsys):
+    """An empty map file (no tasks) should succeed with worst=OK."""
+    empty = tmp_path / "empty.map"
+    empty.write_text("# only a comment\n\n", encoding="utf-8")
+    rc = main(["check", str(empty)])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "worst=OK" in out
+
+
+def test_parse_map_empty_input():
+    """Empty / whitespace-only / comment-only input yields an empty task list."""
+    assert parse_map("") == []
+    assert parse_map("   \n  \n") == []
+    assert parse_map("# just a comment\n") == []
+
+
+def test_analyze_empty_task_list():
+    """analyze() on zero tasks must return a Report with worst=OK and no findings."""
+    report = analyze([])
+    assert report.worst == Severity.OK
+    assert report.findings == []
+    assert report.counts()["CRITICAL"] == 0
+
+
+def test_mcp_server_importable():
+    """mcp_server.py must import without errors (no broken internal imports)."""
+    import importlib
+    mod = importlib.import_module("rtosmap.mcp_server")
+    assert callable(getattr(mod, "serve", None))
