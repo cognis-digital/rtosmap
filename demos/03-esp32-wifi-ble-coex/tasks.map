@@ -1,0 +1,14 @@
+# ESP-IDF / FreeRTOS stack map: name  stack_size  peak_used  [priority]
+# ESP32-S3, WiFi + BLE coexistence build. peak_used taken from
+# uxTaskGetStackHighWaterMark() (bytes, not words) during an OTA pull while
+# a BLE GATT client stayed connected. ESP-IDF priorities: higher = more urgent.
+IDLE0        1536   420    0
+IDLE1        1536   400    0
+main         3584   2100   1
+wifi         3584   3360   23
+tcpip        3072   2700   18
+btController 4096   3120   23
+btHostTask   4608   3980   22
+mqtt_task    4096   2240   5
+ota_task     8192   4600   6
+sensor_poll  2048   1180   8

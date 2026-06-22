@@ -1,0 +1,14 @@
+# Zephyr stack map: name  stack_size  peak_used  [priority]
+# Derived from `CONFIG_THREAD_ANALYZER=y` console output on an nRF5340
+# (Nordic Connect SDK). Zephyr reports "unused" high-water; we convert it
+# to peak_used = stack_size - unused before recording here.
+# Lower priority number = higher urgency (Zephyr cooperative threads use
+# negative priorities; preemptible use >= 0).
+main          2048   1180   0
+sysworkq      4096   2620   -1
+idle          320    96     15
+logging       2048   1410   14
+bt_rx         2048   1980   -8
+bt_tx         2048   1024   -7
+mpsl_work     1024   1010   -10
+shell_uart    3072   1600   14

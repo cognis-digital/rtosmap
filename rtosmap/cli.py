@@ -25,7 +25,7 @@ import sys
 from typing import Optional
 
 from . import TOOL_NAME, TOOL_VERSION
-from .core import Severity, analyze_text
+from .core import Severity, analyze_text, to_sarif
 
 
 def _read_input(path: str) -> str:
@@ -100,9 +100,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     check.add_argument(
         "--format",
-        choices=["table", "json"],
+        choices=["table", "json", "sarif"],
         default="table",
-        help="output format (default: table)",
+        help="output format: table, json, or sarif (default: table)",
     )
     check.add_argument(
         "--warn",
@@ -148,6 +148,9 @@ def main(argv: Optional[list[str]] = None) -> int:
 
         if args.format == "json":
             print(json.dumps(report.to_dict(), indent=2))
+        elif args.format == "sarif":
+            uri = "stdin" if args.mapfile == "-" else args.mapfile
+            print(json.dumps(to_sarif(report, artifact_uri=uri), indent=2))
         else:
             print(_render_table(report))
 

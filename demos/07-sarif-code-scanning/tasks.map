@@ -1,0 +1,11 @@
+# FreeRTOS stack map: name  stack_size  peak_used  [priority]
+# Smart-meter firmware (Cortex-M4). A mix tuned to exercise every SARIF
+# rule id so you can see how findings render in GitHub code-scanning.
+meter_sample   2048   1180   6
+dlms_cosem     4096   3900   4
+crypto_aes     2048   2200   7
+display        1024   540    2
+push_buttons   512    140    1
+modem_ppp      3072   2780   5
+billing        2048   620    3
+audit_log      1024   -      8

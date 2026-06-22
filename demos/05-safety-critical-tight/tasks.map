@@ -1,0 +1,13 @@
+# Safety-critical RTOS stack map: name  stack_size  peak_used  [priority]
+# Infusion-pump controller, IEC 62304 Class C software. Policy requires
+# >= 50% headroom on every task, so this map is checked at --warn 40 --fail 50.
+# Three issues are present that a Class C review MUST resolve before release.
+dose_engine    2048   980    9
+pump_motor     1536   720    8
+occlusion_isr  1024   1100   10
+ui_render      4096   1900   3
+alarm_mgr      2048   1300   7
+keypad         1024   300    4
+battery_mon    0      0      5
+comms_ble      2048   640    2
+selftest       1024   -      6

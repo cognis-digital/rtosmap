@@ -1,0 +1,12 @@
+# STM32 / FreeRTOS stack map: name  stack_size  peak_used  [priority]
+# A well-provisioned production build that should PASS the CI gate.
+# Captured after sizing each stack with ~40% margin over observed peak.
+defaultTask   1024   410    1
+tmr_svc       1024   360    2
+idle          256    72     0
+usb_device    2048   980    4
+can_rx        1024   520    5
+can_tx        1024   480    5
+control_loop  2048   1180   6
+telemetry     1536   720    3
+watchdog      512    180    7

@@ -1,0 +1,13 @@
+# Azure RTOS (ThreadX) stack map: name  stack_size  peak_used  [priority]
+# Automotive body-control module on an NXP S32K. peak_used recovered by
+# walking each thread's stack for the 0xEFEFEFEF fill pattern (ThreadX
+# pre-fills stacks, so the lowest untouched fill word marks the high water).
+# ThreadX priorities: 0 = highest.
+system_timer   1024   360    0
+canopen_rx     2048   1880   3
+canopen_tx     2048   1120   3
+lin_master     1536   980    5
+diag_uds       3072   2960   6
+door_ctrl      1024   560    8
+light_ctrl     1024   600    8
+nvm_writeback  2048   1340   10

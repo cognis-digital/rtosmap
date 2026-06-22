@@ -1,0 +1,13 @@
+# FreeRTOS stack map (mixed units): name  stack_size  peak_used  [priority]
+# Industrial gateway, Cortex-M7. Demonstrates K/KB/KiB suffixes alongside
+# raw byte counts, and a JSON-driven triage workflow.
+tcpip          8K     6900   18
+modbus_tcp     4KiB   3600   12
+modbus_rtu     4096   2100   11
+opcua_server   16K    9800   10
+mqtt_bridge    4KB    3050   8
+sd_logger      2K     1280   5
+rtc_sync       1024   220    4
+ota_agent      8K     7400   6
+web_config     6K     2600   3
+idle           512    96     0

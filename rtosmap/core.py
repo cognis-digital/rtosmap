@@ -19,9 +19,29 @@ We also detect structural problems independent of usage:
 from __future__ import annotations
 
 import enum
+import os
 import re
 from dataclasses import dataclass, field, asdict
 from typing import Iterable, Optional
+
+TOOL_NAME = "rtosmap"
+
+
+def _read_version() -> str:
+    """Single source of truth: the repo-root VERSION file, else fallback."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    candidate = os.path.join(os.path.dirname(here), "VERSION")
+    try:
+        with open(candidate, "r", encoding="utf-8") as fh:
+            v = fh.read().strip()
+            if v:
+                return v
+    except OSError:
+        pass
+    return "1.6.1"
+
+
+TOOL_VERSION = _read_version()
 
 
 class Severity(enum.IntEnum):
@@ -264,3 +284,137 @@ def analyze_text(
 ) -> Report:
     """Convenience: parse + analyze in one call."""
     return analyze(parse_map(text), warn_pct=warn_pct, fail_pct=fail_pct)
+
+
+# --------------------------------------------------------------------------- #
+# SARIF 2.1.0 export
+# --------------------------------------------------------------------------- #
+# Static Analysis Results Interchange Format, so findings flow straight into
+# GitHub code-scanning, Azure DevOps, and any SARIF-aware viewer. Spec:
+# https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
+
+# Stable rule catalogue. Each analysis outcome maps to one rule id so that
+# code-scanning can track a finding across runs and let teams suppress by rule.
+_SARIF_RULES = {
+    "RTOS-OVERFLOW": {
+        "name": "StackOverflow",
+        "shortDescription": "Task stack peak usage exceeds its allocated size",
+        "level": "error",
+    },
+    "RTOS-HEADROOM-CRITICAL": {
+        "name": "CriticalLowHeadroom",
+        "shortDescription": "Task stack headroom is critically low (>= fail threshold)",
+        "level": "error",
+    },
+    "RTOS-HEADROOM-LOW": {
+        "name": "LowHeadroom",
+        "shortDescription": "Task stack headroom is low (>= warn threshold)",
+        "level": "warning",
+    },
+    "RTOS-INVALID-SIZE": {
+        "name": "InvalidStackSize",
+        "shortDescription": "Task declares a non-positive / nonsensical stack size",
+        "level": "error",
+    },
+    "RTOS-UNVERIFIED": {
+        "name": "UnverifiedStackUsage",
+        "shortDescription": "No high-water-mark recorded; stack usage is unverified",
+        "level": "note",
+    },
+    "RTOS-OK": {
+        "name": "HealthyStack",
+        "shortDescription": "Task stack usage is within healthy headroom",
+        "level": "none",
+    },
+}
+
+# SARIF severity level keyed off the message + severity of a Finding.
+_SARIF_LEVEL = {
+    Severity.CRITICAL: "error",
+    Severity.WARNING: "warning",
+    Severity.INFO: "note",
+    Severity.OK: "none",
+}
+
+
+def _rule_id_for(finding: "Finding") -> str:
+    """Map a Finding to a stable SARIF rule id (deterministic, no I/O)."""
+    if finding.severity is Severity.OK:
+        return "RTOS-OK"
+    if finding.severity is Severity.INFO:
+        return "RTOS-UNVERIFIED"
+    msg = finding.message
+    if "OVERFLOW" in msg:
+        return "RTOS-OVERFLOW"
+    if "invalid stack size" in msg:
+        return "RTOS-INVALID-SIZE"
+    if finding.severity is Severity.CRITICAL:
+        return "RTOS-HEADROOM-CRITICAL"
+    return "RTOS-HEADROOM-LOW"
+
+
+def to_sarif(report: Report, artifact_uri: str = "stackmap") -> dict:
+    """Render a Report as a SARIF 2.1.0 log object (JSON-serializable dict).
+
+    ``artifact_uri`` is the logical path of the scanned stack map, used as the
+    physical-location URI so viewers can group results by source file.
+    """
+    used_rule_ids: list[str] = []
+    seen_rules: set[str] = set()
+    results = []
+    for f in report.findings:
+        rid = _rule_id_for(f)
+        if rid not in seen_rules:
+            seen_rules.add(rid)
+            used_rule_ids.append(rid)
+        result = {
+            "ruleId": rid,
+            "level": _SARIF_LEVEL[f.severity],
+            "message": {"text": f"task '{f.task}': {f.message}"},
+            "locations": [
+                {
+                    "physicalLocation": {
+                        "artifactLocation": {"uri": artifact_uri},
+                        "region": {"startLine": max(f.line_no, 1)},
+                    }
+                }
+            ],
+            "properties": {
+                "task": f.task,
+                "stack_size": f.stack_size,
+                "peak_used": f.peak_used,
+                "free": f.free,
+                "used_pct": (None if f.used_pct is None else round(f.used_pct, 4)),
+            },
+        }
+        results.append(result)
+
+    rules = []
+    for rid in used_rule_ids:
+        meta = _SARIF_RULES[rid]
+        rules.append(
+            {
+                "id": rid,
+                "name": meta["name"],
+                "shortDescription": {"text": meta["shortDescription"]},
+                "defaultConfiguration": {"level": meta["level"]},
+            }
+        )
+
+    return {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": TOOL_NAME,
+                        "version": TOOL_VERSION,
+                        "informationUri": "https://github.com/cognis-digital/rtosmap",
+                        "rules": rules,
+                    }
+                },
+                "results": results,
+            }
+        ],
+    }

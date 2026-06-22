@@ -40,6 +40,10 @@ rtosmap scan .            # → prioritized findings in seconds
    rtosmap check stackmap.txt --warn 70 --fail 85 --format json > stack.json
    ```
 
+   Three output formats are available via `--format`: `table` (default,
+   human-readable), `json` (stable contract for scripts/agents), and
+   `sarif` (SARIF 2.1.0 for GitHub code-scanning — see below).
+
 4. **Read the result.** The report ranks each task by stack used%, marking WARNING/CRITICAL tiers. In JSON mode, parse the per-task findings; the process exits non-zero on CRITICAL findings.
 
 5. **Gate in CI.** Use `--strict` to also fail on WARNING-level findings:
@@ -50,7 +54,7 @@ rtosmap scan .            # → prioritized findings in seconds
 
 ## Contents
 
-- [Why rtosmap?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
+- [Why rtosmap?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Demos](#demos) · [SARIF](#sarif) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
 
 <a name="why"></a>
 ## Why rtosmap?
@@ -64,9 +68,11 @@ Embedded devs love free static analysis they can drop in PRs — 'this task over
 <a name="features"></a>
 ## Features
 
-- ✅ Parse Map
-- ✅ Analyze
-- ✅ Analyze Text
+- ✅ Parse Map — FreeRTOS / Zephyr / ThreadX stack maps, K/KB/KiB units
+- ✅ Analyze — overflow, critical/low headroom, invalid size, unverified
+- ✅ Analyze Text — parse + analyze a stack-map string in one call
+- ✅ Three outputs — `table` · `json` · **SARIF 2.1.0** (`--format sarif`)
+- ✅ Tunable gate — `--warn` / `--fail` thresholds + `--strict` for CI
 - ✅ Runs on Linux/macOS/Windows · Docker · devcontainer
 - ✅ Ports in Python, JavaScript, Go, and Rust (`ports/`)
 
@@ -95,6 +101,54 @@ $ rtosmap scan .
 
   2 findings · risk score 5 · 38ms
 ```
+
+<div align="right"><a href="#top">↑ back to top</a></div>
+
+<a name="demos"></a>
+## Demos — real-world scenarios
+
+Each folder under [`demos/`](demos/) has a stack map in rtosmap's real input
+format plus a `SCENARIO.md` explaining where the data came from, what to
+expect, the exact command, and how to act. Every demo is exercised by the
+test suite, so they always run.
+
+| Demo | RTOS / target | Shows |
+|---|---|---|
+| [`01-basic`](demos/01-basic/) | FreeRTOS | overflow + low headroom + unverified, default thresholds |
+| [`02-zephyr-thread-analyzer`](demos/02-zephyr-thread-analyzer/) | Zephyr (nRF5340 BLE) | converting `CONFIG_THREAD_ANALYZER` output; BLE-controller stacks at risk |
+| [`03-esp32-wifi-ble-coex`](demos/03-esp32-wifi-ble-coex/) | ESP-IDF (ESP32-S3) | tuned `--warn 75 --fail 90` for a hot coexistence build |
+| [`04-clean-baseline-ci`](demos/04-clean-baseline-ci/) | STM32 FreeRTOS | a known-good map that passes `--strict` (exit 0) as a CI guard |
+| [`05-safety-critical-tight`](demos/05-safety-critical-tight/) | IEC 62304 Class C | 50%-headroom policy surfacing overflow, invalid size, and unverified tasks |
+| [`06-stdin-pipeline`](demos/06-stdin-pipeline/) | Azure RTOS / ThreadX | pipe a live on-target capture in over stdin (`check -`) |
+| [`07-sarif-code-scanning`](demos/07-sarif-code-scanning/) | FreeRTOS (smart meter) | `--format sarif` → GitHub code-scanning annotations |
+| [`08-json-triage-jq`](demos/08-json-triage-jq/) | FreeRTOS (industrial gateway) | mixed K/KB/KiB units + JSON/`jq` agent triage |
+
+```bash
+python -m rtosmap check demos/02-zephyr-thread-analyzer/threads.map
+```
+
+<div align="right"><a href="#top">↑ back to top</a></div>
+
+<a name="sarif"></a>
+## SARIF for GitHub code-scanning
+
+`rtosmap check --format sarif` emits a **SARIF 2.1.0** log. Each outcome maps
+to a stable rule id (`RTOS-OVERFLOW`, `RTOS-HEADROOM-CRITICAL`,
+`RTOS-HEADROOM-LOW`, `RTOS-INVALID-SIZE`, `RTOS-UNVERIFIED`) so code-scanning
+can track and suppress findings across runs.
+
+```yaml
+# .github/workflows/firmware.yml
+- name: rtosmap stack scan
+  run: python -m rtosmap check fw/stack.map --format sarif > rtosmap.sarif
+  continue-on-error: true
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: rtosmap.sarif
+```
+
+Stack-overflow and low-headroom findings then show up as annotations on the
+PR's changed files. See [`demos/07-sarif-code-scanning`](demos/07-sarif-code-scanning/).
 
 <div align="right"><a href="#top">↑ back to top</a></div>
 
