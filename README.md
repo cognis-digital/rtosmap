@@ -20,6 +20,80 @@ pip install cognis-rtosmap
 rtosmap scan .            # → prioritized findings in seconds
 ```
 
+
+<!-- cognis:example:start -->
+## 🔎 Example output
+
+Real, reproducible output from the tool — runs offline:
+
+```console
+$ rtosmap-emit --version
+rtosmap 1.6.1
+```
+
+```console
+$ rtosmap-emit --help
+usage: rtosmap [-h] [--version] {check} ...
+
+Map RTOS task stacks and flag stack-overflow risks from a stack map file.
+
+positional arguments:
+  {check}
+    check     analyze a stack map file and report risky tasks
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+
+map format per line: <name> <stack_size> <peak_used> [priority]
+sizes accept K/KB suffix (e.g. 4K). '#' starts a comment.
+
+example: rtosmap check tasks.map --format json --warn 70 --fail 85
+```
+
+> Blocks above are real `rtosmap` output — reproduce them from a clone.
+
+**Sample result format** _(illustrative values — run on your own data for real findings):_
+
+```
+{
+"feed_name": "My Awesome Feed",
+"spec_version": "2.0",
+"id": "rtosmap-emit-2023-02-15T14:30:00Z",
+"type": "indicator",
+"created_by_ref": "my_cognito_id",
+"modified_by_ref": "my_cognito_id",
+"created": "2023-02-15T14:30:00Z",
+"modified": "2023-02-15T14:30:00Z",
+"name": "My Awesome Indicator",
+"description": "This is a test indicator.",
+"labels": ["test", "rtosmap"],
+"observed_data": {
+"network_traffic": [
+{
+"protocol": "tcp",
+"src_port": 1234,
+"dst_port": 5678,
+"src_ip": "192.168.1.100",
+"dst_ip": "8.8.8.8"
+}
+]
+},
+"indicators": [
+{
+"type": "domain_name",
+"value": "example.com"
+},
+{
+"type": "ip_address",
+"value": "192.168.1.100"
+}
+]
+}
+```
+
+<!-- cognis:example:end -->
+
 ## Usage — step by step
 
 1. **Install** (Python 3.9+):

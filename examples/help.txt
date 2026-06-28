@@ -1,0 +1,18 @@
+$ rtosmap-emit --help
+
+usage: rtosmap [-h] [--version] {check} ...
+
+Map RTOS task stacks and flag stack-overflow risks from a stack map file.
+
+positional arguments:
+  {check}
+    check     analyze a stack map file and report risky tasks
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+
+map format per line: <name> <stack_size> <peak_used> [priority]
+sizes accept K/KB suffix (e.g. 4K). '#' starts a comment.
+
+example: rtosmap check tasks.map --format json --warn 70 --fail 85

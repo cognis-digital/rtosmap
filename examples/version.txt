@@ -1,0 +1,3 @@
+$ rtosmap-emit --version
+
+rtosmap 1.6.1
